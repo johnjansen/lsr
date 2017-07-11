@@ -1,0 +1,13 @@
+name: lsr
+version: 0.1.0
+
+authors:
+  - John Jansen <john.jansen@me.com>
+
+targets:
+  lsr:
+    main: src/lsr.cr
+
+crystal: 0.23.0
+
+license: MIT
