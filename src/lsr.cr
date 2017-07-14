@@ -5,37 +5,63 @@ module Lsr
   a = false
   aa = false
   author = false
-
   bb = false
-
-  ff = false
-
   d = false
   dd = false
-
+  ff = false
   g = false
   gg = false
-
+  ino = false
   l = false
   ll = false
-
   n = false
   nn = false
-
+  m = true
   o = false
-
-  ino = false
+  q = false
+  qq = false
+  r = false
   s = false
-  # one = false
+  ss = false
+  t = false
+  u = false
+  uu = false
+  v = false
+  xx = false
 
   OptionParser.parse! do |parser|
-    parser.banner = "Usage: lsr [OPTION]... [FILE_REGEX]..."
+    parser.banner = <<-USAGE
+      Usage: lsr [OPTION]... [FILE_REGEX]...
+
+      The given FILE_REGEX is split on /'s, then processed as individual regexes,
+      therefore given a FILE_REGEX = .*/\-
+      two regex's will be generated one for the cwd and another for the next level
+      i.e. '.*' in cwd and if any directories match in cwd, further matches within
+      those matching subdirectories for '\-' ... this can render some unexpected
+      results, but can also be very powerful for certain tasks
+
+      examples:
+      ```
+        lsr -l                  # => lists all in current directory in long format
+        lsr -D ^zones$/[0-9]{8} # => lists all non-directories in the zones
+                                     directory that begin with 8 numbers
+        lsr -D -l src/.*/\\\\.cr$ # => lists in long form all non directory entries
+                                     that end with .cr in a subdirectory of
+                                     any src directory
+        ./lsr -D \\\\.            # => list all non-directories that contain at least one '.'
+      ```
+      please report any issues here: https://github.com/johnjansen/lsr/issues
+
+
+    USAGE
+
     parser.on("-a", "--all", "do not ignore entries starting with .") { a = true }
     parser.on("-A", "--almost-all", "do not list implied . and ..") { a = true; aa = true }
     parser.on("-B", "--ignore-backups", "do not list implied entries ending with ~") { bb = true }
     parser.on("-d", "--directory", "list directories themselves, not their contents") { d = true }
     parser.on("-D", "--ignore-directories", "do not list directories") { dd = true }
 
+    # TODO implement
     # parser.on("-D", "--dired", "generate output designed for Emacs' dired mode") { puts "NOT IMPLEMENTED" }                                                                                                               # TODO implement
     # parser.on("-f", "do not sort, enable -aU, disable -ls --color") { puts "NOT IMPLEMENTED" }                                                                                                                            # TODO implement
     # parser.on("-F", "--classify", "append indicator (one of */=>@|) to entries") { puts "NOT IMPLEMENTED" }                                                                                                               # TODO implement
@@ -45,10 +71,12 @@ module Lsr
 
     parser.on("-g", "like -l, but do not list owner") { l = true; g = true }
 
-    parser.on("--group-directories-first", "group directories before files; can be augmented with a --sort option, but any use of --sort=none (-U) disabled grouping") { puts "NOT IMPLEMENTED" } # TODO implement
+    # TODO implement
+    # parser.on("--group-directories-first", "group directories before files; can be augmented with a --sort option, but any use of --sort=none (-U) disabled grouping") { puts "NOT IMPLEMENTED" } # TODO implement
 
     parser.on("-G", "--no-group", "in a long listing, don't print group names") { l = true; gg = true }
 
+    # TODO implement
     # parser.on("-h", "--human-readable", "with -l and/or -s, print human readable sizes (e.g., 1K 234M 2G)") { puts "NOT IMPLEMENTED" }                                                            # TODO implement
     # parser.on("--si", "likewise, but use powers of 1000 not 1024") { puts "NOT IMPLEMENTED" }                                                                                                     # TODO implement
     # parser.on("--indicator-style=WORD", "append indicator with style WORD to entry names: none  (default), slash (-p), file-type (--file-type), classify (-F)") { puts "NOT IMPLEMENTED" }        # TODO implement
@@ -57,34 +85,36 @@ module Lsr
     parser.on("-l", "use a long listing format") { l = true }
     parser.on("-L", "--dereference", "when showing file information for a symbolic link, show information for the file the link references rather than for the link itself") { ll = true }
 
-    parser.on("-m", "fill width with a comma seperated list of entries") { puts "NOT IMPLEMENTED" } # TODO implement
+    # TODO implement
+    # parser.on("-m", "fill width with a comma seperated list of entries") { m = true } # TODO implement
 
     parser.on("-n", "--numeric-uid-gid", "like -l, but list numeric user and group IDs") { n = true }
     parser.on("-N", "--literal", "print entry names without quoting") { nn = true }
     parser.on("-o", "like -l, but do not list group information") { o = true }
 
-    parser.on("-p", "--indicator-style=slash", "append / indicator to directories") { |indicator| puts "NOT IMPLEMENTED" }                                        # TODO implement
-    parser.on("-q", "--hide-control-chars", "print ? instead of nongraphic characters") { puts "NOT IMPLEMENTED" }                                                # TODO implement
-    parser.on("--show-control-chars", "show nongraphic characters as-is (the default, unless program is 'ls' and output is terminal)") { puts "NOT IMPLEMENTED" } # TODO implement
-    parser.on("-Q", "--quote-name", "enclose entry names in double quotes") { puts "NOT IMPLEMENTED" }                                                            # TODO implement
+    # TODO implement
+    # parser.on("-p", "--indicator-style=slash", "append / indicator to directories") { |indicator| puts "NOT IMPLEMENTED" }                                        # TODO implement
+    # parser.on("-q", "--hide-control-chars", "print ? instead of nongraphic characters") { q = true }                                                              # TODO implement
+    # parser.on("--show-control-chars", "show nongraphic characters as-is (the default, unless program is 'ls' and output is terminal)") { puts "NOT IMPLEMENTED" } # TODO implement
+    # parser.on("-Q", "--quote-name", "enclose entry names in double quotes") { qq = true }                                                                         # TODO implement
     # parser.on("--quoting-style=WORD", "use quoting style WORD for entry names: literal, locale, shell, shell-always, shell-escape, shell-escape-always, c, escape") { puts "NOT IMPLEMENTED" }          # TODO implement
-    parser.on("-r", "--reverse", "reverse order while sorting") { puts "NOT IMPLEMENTED" } # TODO implement
+    # parser.on("-r", "--reverse", "reverse order while sorting") { r = true }
     # parser.on("-R", "--recursive", "list sub directories") { puts "NOT IMPLEMENTED" }                                                                                                                   # TODO implement
 
     parser.on("-s", "--size", "print the allocated size of each file, in blocks") { s = true }
 
-    parser.on("-S", "sort by file size, largest first") { puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                                                                                          # TODO implement
-    parser.on("--sort=WORD", "sort by WORD instead of name: none (-U), size (-S), time (-T), version (-V), extension (-X)") { puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                      # TODO implement
-    parser.on("--time=WORD", "with -l, show time as WORD instead of default modification time: atime or access or use (-u); ctime or status (-c); also use specified time as sort key if --sort=time (newest first)") { puts "NOT IMPLEMENTED" }                                                                                                                                            # TODO implement
-    parser.on("--time-style=WORD", "with -l, show times using style STYLE: full-iso, long-iso, iso, locale, or +FORMAT; FORMAT is interpreted like in 'date'; if FORMAT is FORMAT1<newline>FORMAT2, then FORMAT1 applies to non-recent files and FORMAT2 to recent files; if STYLE is prefixed with 'posix-', STYLE takes effect only outside the POSIX locale") { puts "NOT IMPLEMENTED" } # TODO implement
-    parser.on("-t", "sort by modification time, newest first") { puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                                                                                   # TODO implement
-    # parser.on("-T", "--tabsize=COLS", "assume tab stops at each COLS instead of 8") { |tabsize| puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                                                    # TODO implement
-    parser.on("-u", "with -lt: sort by, and show, access time; with -l: show access time and sort by name; otherwise: sort by access time, newest first") { puts "NOT IMPLEMENTED" } # TODO implement
-    parser.on("-U", "do not sort; list entries in directory order") { puts "NOT IMPLEMENTED" }                                                                                       # TODO implement
-    parser.on("-v", "natural sort of (version) numbers within text") { puts "NOT IMPLEMENTED" }                                                                                      # TODO implement
+    # TODO implement
+    # parser.on("-S", "sort by file size, largest first") { ss = true }
+    # parser.on("--sort=WORD", "sort by WORD instead of name: none (-U), size (-S), time (-T), version (-V), extension (-X)") { puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                      # TODO implement
+    # parser.on("--time=WORD", "with -l, show time as WORD instead of default modification time: atime or access or use (-u); ctime or status (-c); also use specified time as sort key if --sort=time (newest first)") { puts "NOT IMPLEMENTED" }                                                                                                                                            # TODO implement
+    # parser.on("--time-style=WORD", "with -l, show times using style STYLE: full-iso, long-iso, iso, locale, or +FORMAT; FORMAT is interpreted like in 'date'; if FORMAT is FORMAT1<newline>FORMAT2, then FORMAT1 applies to non-recent files and FORMAT2 to recent files; if STYLE is prefixed with 'posix-', STYLE takes effect only outside the POSIX locale") { puts "NOT IMPLEMENTED" } # TODO implement
+    # parser.on("-t", "sort by modification time, newest first") { t = true }                                                                                                                                                                                                                                                                                                                 # TODO implement
+    # parser.on("-u", "with -lt: sort by, and show, access time; with -l: show access time and sort by name; otherwise: sort by access time, newest first") { u = true }                                                                                                                                                                                                                      # TODO implement
+    # parser.on("-U", "do not sort; list entries in directory order") { uu = true }                                                                                                                                                                                                                                                                                                           # TODO implement
+    # parser.on("-v", "natural sort of (version) numbers within text") { v = true }                                                                                                                                                                                                                                                                                                           # TODO implement
     # parser.on("-w", "--width=COLS", "set output width to COLS.  0 means no limit") { |cols| puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                                                        # TODO implement
     # parser.on("-x", "list entries by lines instead of by columns") { puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                                                                               # TODO implement
-    parser.on("-X", "sort alphabetically by entry extension") { puts "NOT IMPLEMENTED" } # TODO implement
+    # parser.on("-X", "sort alphabetically by entry extension") { xx = true } # TODO implement
     # parser.on("-Z", "--context", "print any security context of each file") { puts "NOT IMPLEMENTED" }                                                                                                                                                                                                                                                                                      # TODO implement
     # parser.on("-1", "list one file per line.  Avoid '\\n' with -q or -b") { one = true }
 
@@ -93,13 +123,13 @@ module Lsr
   end
 
   ARGV << ".*" if ARGV.empty?
-  xpr = ARGV.first.split("/").map { |a| Regex.new(a) }
+  xpr = ARGV.first.split("/").map { |argument| Regex.new(argument) }
   {% unless env("CRYSTAL_ENV") == "test" %}
     blocks = 0
 
     paths = [] of Tuple(String, File::Stat)
-    LS.new(xpr).each do |t|
-      paths << t
+    LS.new(xpr).each do |tuple_of_entry|
+      paths << tuple_of_entry
     end
 
     line = String.build do |string|
