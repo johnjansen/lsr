@@ -129,10 +129,13 @@ module Lsr
               string << File.real_path(path)
             end
             string << '\n'
+        else
+          string << path
+          string << '\n'
         end
       end
     end
-    puts "Total #{blocks}"
+    puts "Total #{blocks}" if l
     puts line
 
   {% end %}
