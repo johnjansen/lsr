@@ -21,9 +21,9 @@ class LS
       next if e =~ /^\.*$/
       next unless !!(e =~ @head)
 
-      full_path = File.join(@base, e)
+      full_path = File.join(@base, e).sub(/^\.\//, "")
 
-      @each.not_nil!.call({e, File.lstat(full_path)}) if @tail.empty?
+      @each.not_nil!.call({full_path, File.lstat(full_path)}) # if @tail.empty?
 
       LS.new(@tail, full_path, each: @each).ls if File.directory?(e)
     end
