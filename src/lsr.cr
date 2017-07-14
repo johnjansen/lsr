@@ -6,6 +6,7 @@ module Lsr
   aa = false
   author = false
 
+  d = false
   dd = false
 
   g = false
@@ -25,7 +26,7 @@ module Lsr
     # parser.on("-c", "with -lt: sort by, and show, ctime (time of last modification of file status information); with -l: show ctime and sort by name; otherwise: sort by ctime, newest first") { puts "NOT IMPLEMENTED" } # TODO implement
     # parser.on("-C", "list entries by columns") { puts "NOT IMPLEMENTED" }                                                                                                                                                 # TODO implement
     # parser.on("--color[=WHEN]", "colorize the output; WHEN can be 'always' (default if omitted), 'auto', or 'never'; more info below") { puts "NOT IMPLEMENTED" }                                                         # TODO implement
-    parser.on("-d", "--directory", "list directories themselves, not their contents") { puts "NOT IMPLEMENTED" } # TODO implement
+    parser.on("-d", "--directory", "list directories themselves, not their contents") { d = true }
     parser.on("-D", "--ignore-directories", "do not list directories") { dd = true }
     # parser.on("-D", "--dired", "generate output designed for Emacs' dired mode") { puts "NOT IMPLEMENTED" }                                                                                                               # TODO implement
     # parser.on("-f", "do not sort, enable -aU, disable -ls --color") { puts "NOT IMPLEMENTED" }                                                                                                                            # TODO implement
@@ -96,6 +97,12 @@ module Lsr
           next if stat.directory?
           if stat.symlink?
             next if File.stat(File.real_path(path)).directory?
+          end
+        else
+          if stat.symlink?
+            next unless File.stat(File.real_path(path)).directory?
+          else
+            next unless stat.directory?
           end
         end
 
