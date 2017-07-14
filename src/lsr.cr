@@ -1,36 +1,6 @@
 require "option_parser"
 require "./lsr/*"
 
-class OptionParser
-  BK = '\n' + (" " * 38)
-
-  private def append_flag(flag, description)
-    ct = 0
-    bk_desc = String.build do |s|
-      description.split(/\s+/) do |chunk|
-        ct += chunk.size
-        if ct > 43
-          s << BK
-          s << chunk
-          ct = chunk.size
-        elsif ct > 0
-          s << ' '
-          s << chunk
-        else
-          s << chunk
-        end
-      end
-    end
-    description = bk_desc
-
-    if flag.size >= 33
-      @flags << "    #{flag}\n#{" " * 37}#{description}"
-    else
-      @flags << "    #{flag}#{" " * (33 - flag.size)}#{description}"
-    end
-  end
-end
-
 module Lsr
   a = false
   aa = false
@@ -38,7 +8,7 @@ module Lsr
 
   g = false
   l = false
-  i = false
+  ino = false
   s = false
   one = false
 
@@ -69,7 +39,7 @@ module Lsr
     parser.on("--dereference-command-line-symlink-to-dir", "follow each command line symbolic link   that points to a directory") { puts "NOT IMPLEMENTED" }                                      # TODO implement
     parser.on("--hide=PATTERN", "do not list implied entries matching shell PATTERN (overridden by -a or -A)") { puts "NOT IMPLEMENTED" }                                                         # TODO implement
     parser.on("--indicator-style=WORD", "append indicator with style WORD to entry names: none  (default), slash (-p), file-type (--file-type), classify (-F)") { puts "NOT IMPLEMENTED" }        # TODO implement
-    parser.on("-i", "--inode", "print the index number of each file") { i = true }
+    parser.on("-i", "--inode", "print the index number of each file") { ino = true }
     parser.on("-I", "--ignore=PATTERN", "do not list implied entries matching shell PATTERN") { |word| puts "NOT IMPLEMENTED" } # TODO implement
     parser.on("-k", "--kibibytes", "defaults to 1024-byte blocks for disk usage") { puts "NOT IMPLEMENTED" }                    # TODO implement
     parser.on("-l", "use a long listing format") { l = true }
@@ -105,13 +75,21 @@ module Lsr
     parser.on("--version", "output version information and exit") { puts parser; exit }
   end
 
+  ARGV << ".*" if ARGV.empty?
+  xpr = ARGV.first.split("/").map { |a| Regex.new(a) }
   {% unless env("CRYSTAL_ENV") == "test" %}
     blocks = 0
-    paths = Dir.open(".").map{ |p| {p, File.lstat(p)} }.sort_by{ |i| i[0] }
+
+    paths = [] of Tuple(String, File::Stat)
+    LS.new(xpr).each do |t|
+      paths << t
+    end
+
     line = String.build do |string|
       paths.each do |path, stat|
-        next if path[0] == '.' && !a
+        next if path.starts_with?('.') && !a
         next if (path == "." || path == "..") & aa
+
         blocks += stat.blocks
 
         mode = stat.mode.to_s(8)
@@ -122,7 +100,7 @@ module Lsr
           # -rw-r--r--@   1 johnjansen  staff    5096132 Mar 11  2016 2014-01-03.zip
           # -rw-r--r--@   1 johnjansen  staff   16019803 Mar 11  2016 2014-01-10.zip
           # drwx------    6 johnjansen  staff        204 Aug 30  2016 Applications
-            if i
+            if ino
               string << stat.ino
               string << " "
             end
@@ -156,7 +134,6 @@ module Lsr
     end
     puts "Total #{blocks}"
     puts line
-
 
   {% end %}
 end
