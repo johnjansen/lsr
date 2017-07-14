@@ -6,6 +6,8 @@ module Lsr
   aa = false
   author = false
 
+  dd = false
+
   g = false
   l = false
   ino = false
@@ -24,6 +26,7 @@ module Lsr
     # parser.on("-C", "list entries by columns") { puts "NOT IMPLEMENTED" }                                                                                                                                                 # TODO implement
     # parser.on("--color[=WHEN]", "colorize the output; WHEN can be 'always' (default if omitted), 'auto', or 'never'; more info below") { puts "NOT IMPLEMENTED" }                                                         # TODO implement
     parser.on("-d", "--directory", "list directories themselves, not their contents") { puts "NOT IMPLEMENTED" } # TODO implement
+    parser.on("-D", "--ignore-directories", "do not list directories") { dd = true }
     # parser.on("-D", "--dired", "generate output designed for Emacs' dired mode") { puts "NOT IMPLEMENTED" }                                                                                                               # TODO implement
     # parser.on("-f", "do not sort, enable -aU, disable -ls --color") { puts "NOT IMPLEMENTED" }                                                                                                                            # TODO implement
     # parser.on("-F", "--classify", "append indicator (one of */=>@|) to entries") { puts "NOT IMPLEMENTED" }                                                                                                               # TODO implement
@@ -88,7 +91,13 @@ module Lsr
     line = String.build do |string|
       paths.each do |path, stat|
         next if path.starts_with?('.') && !a
-        next if (path == "." || path == "..") & aa
+        next if (path == "." || path == "..") && aa
+        if dd
+          next if stat.directory?
+          if stat.symlink?
+            next if File.stat(File.real_path(path)).directory?
+          end
+        end
 
         blocks += stat.blocks
 
