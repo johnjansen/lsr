@@ -98,12 +98,10 @@ module Lsr
           if stat.symlink?
             next if File.stat(File.real_path(path)).directory?
           end
+        elsif d && stat.symlink?
+          next unless File.stat(File.real_path(path)).directory?
         elsif d
-          if stat.symlink?
-            next unless File.stat(File.real_path(path)).directory?
-          else
-            next unless stat.directory?
-          end
+          next unless stat.directory?
         end
 
         blocks += stat.blocks
