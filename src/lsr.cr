@@ -98,7 +98,7 @@ module Lsr
           if stat.symlink?
             next if File.stat(File.real_path(path)).directory?
           end
-        else
+        elsif d
           if stat.symlink?
             next unless File.stat(File.real_path(path)).directory?
           else
