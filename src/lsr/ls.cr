@@ -17,7 +17,7 @@ class LS
   protected def ls
     return unless File.directory?(@base)
 
-    Dir.foreach(@base) do |e|
+    Dir.each_entry(@base) do |e|
       next if e =~ /^\.*$/
       next unless !!(e =~ @head)
 
